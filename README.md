@@ -1,5 +1,5 @@
 # Pre-Recall Radar
-
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/venkateshsunkula/pre-recall-radar/blob/main/pre_recall_radar.ipynb)
 An AI agent that detects emerging consumer product-safety issues from public complaint data — before official recalls or warnings.
 
 ## Result
@@ -32,6 +32,7 @@ Design choice: plain code does the counting (fast, cheap, exact); the LLM does t
 - **Data leakage:** my first backtest could "see the future." I fixed it by filtering by date, and by using publication date (when reports became public) instead of filing date.
 - **Thresholds are product decisions:** a lower threshold catches issues earlier but raises more false alarms.
 - **Messy real-world data:** the CSV had a disclaimer line above the header, and one brand was spelled 4 different ways.
+- - **False recall match:** the recall check matched by brand name only, so it reported a past recall of a *different* product from the same brand. Fixed by flagging "same brand, verify product" instead of claiming a recall.
 
 ## Limitations
 - Complaint counts show that reports exist, not that a product causes harm. The agent reports signals, not verdicts.
