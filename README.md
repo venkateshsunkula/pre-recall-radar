@@ -81,3 +81,36 @@ Python · pandas · Claude API (Haiku 4.5, tool use, web search) · Google Colab
 - [CPSC warning: infant bouncers (Sep 10, 2026)](https://www.cpsc.gov/Warnings/2026/CPSC-Warns-Consumers-to-Stop-Using-Flyboss-Infant-Bouncers-Immediately-Due-to-Risk-of-Collapse-and-Impact-Injury-to-Infants)
 - [CPSC warning: infant walkers (Aug 6, 2026)](https://www.cpsc.gov/Warnings/2026/CPSC-Warns-Consumers-to-Stop-Using-CiuseiAnx-Infant-Walkers-Immediately-Due-to-Risk-of-Serious-Injury-or-Death-from-Fall-Hazard-Violate-Mandatory-Standard-for-Infant-Walkers)
 - [News coverage of diaper complaints (Sep 2026)](https://www.wcpo.com/money/consumer/dont-waste-your-money/millie-moon-says-it-wont-recall-diapers-despite-reports-of-chemical-burns)
+
+- ## Daily alerts (v2 Step 4)
+
+Pre-Recall Radar now runs by itself every morning and sends a report to my phone on Telegram.
+
+**How it works**
+1. **Watchlist:** a list of brands I own (`WATCHLIST` in `radar.py`).
+2. **Spike check:** each brand is labeled 🚨 Alert, 👀 Watch, or ✅ Quiet based on its last 90 days of complaints vs. the year before.
+3. **Official check:** a CPSC warning or recall from the past year overrides everything (⛔ stop using). Older actions are shown as past, since they may involve a different product.
+4. **Investigator:** flagged brands go to the Claude agent, and Python applies the verdict rules.
+5. **Telegram:** the full report arrives as one message every morning.
+
+**Example report**
+​```
+Millie Moon: 🚨 Alert
+  Last 90 days: 378 complaints (prior year: 196)
+  Verdict: LIKELY REAL ISSUE
+
+Flyboss: ⛔ OFFICIAL WARNING/RECALL - stop using, check cpsc.gov
+  Verdict: LIKELY REAL ISSUE
+
+Graco: ✅ Quiet
+  Past official action: 2020-12-16 (may be a different product)
+​```
+
+**Architecture**
+| Part | Runs on | When |
+|---|---|---|
+| Data refresh (notebook cell) | Google Colab | Weekly |
+| `radar.py` | GitHub Actions (`.github/workflows/daily.yml`) | Daily, ~8 AM Central |
+| Alerts | Telegram bot | Every run |
+
+**A real-world problem I solved:** saferproducts.gov blocks requests from GitHub's servers (HTTP 403), but not from Google Colab. So Colab downloads the data weekly and saves a compressed copy to `data/`, and the daily job reads that copy. If the data gets more than 14 days old, the report warns me.
